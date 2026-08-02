@@ -1,0 +1,7 @@
+.env
+__pycache__/
+*.pyc
+*.log
+.lead_monitor_state.json
+.DS_Store
+venv/
