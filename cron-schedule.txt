@@ -1,0 +1,25 @@
+# Logistoria Instagram Automation Cron
+# Сгенерирован: 2026-08-03
+# 3 языка, 5 рынков, 14 дней
+
+# Проверка заявок каждые 2 часа
+0 */2 * * * cd /root/.openclaw/workspace/projects/logistoria-social && /usr/bin/python3 scripts/check_leads.py >> logs/leads.log 2>&1
+
+# Публикация постов по расписанию (автоматический выбор из плана)
+# ПН, СР, ПТ — 07:00 UTC (СНГ рынок, 10:00 МСК)
+0 7 * * 1,3,5 cd /root/.openclaw/workspace/projects/logistoria-social && /usr/bin/python3 scripts/scheduler.py >> logs/posts.log 2>&1
+
+# ВТ, ЧТ — 08:00 UTC (Европа, 10:00 CEST)
+0 8 * * 2,4 cd /root/.openclaw/workspace/projects/logistoria-social && /usr/bin/python3 scripts/scheduler.py >> logs/posts.log 2>&1
+
+# ВТ, ЧТ — 14:00 UTC (США, 10:00 EDT)
+0 14 * * 2,4 cd /root/.openclaw/workspace/projects/logistoria-social && /usr/bin/python3 scripts/scheduler.py >> logs/posts.log 2>&1
+
+# СБ — 02:00 UTC (Азия, 10:00 SGT)
+0 2 * * 6 cd /root/.openclaw/workspace/projects/logistoria-social && /usr/bin/python3 scripts/scheduler.py >> logs/posts.log 2>&1
+
+# ВС — 14:00 UTC (США, 10:00 EDT)
+0 14 * * 0 cd /root/.openclaw/workspace/projects/logistoria-social && /usr/bin/python3 scripts/scheduler.py >> logs/posts.log 2>&1
+
+# СР — 13:00 UTC (Латам, 10:00 BRT)
+0 13 * * 3 cd /root/.openclaw/workspace/projects/logistoria-social && /usr/bin/python3 scripts/scheduler.py >> logs/posts.log 2>&1
