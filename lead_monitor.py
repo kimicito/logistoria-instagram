@@ -132,14 +132,9 @@ class LeadMonitor:
             return None
     
     def send_notification(self, lead_info):
-        """
-        Отправить уведомление о заявке
-        
-        lead_info: dict с информацией о заявке
-        """
+        """Отправить уведомление о заявке"""
         # Формируем сообщение
-        message = f"""
-🎯 НОВАЯ ЗАЯВКА С INSTAGRAM
+        message = f"""🎯 НОВАЯ ЗАЯВКА С INSTAGRAM
 
 📱 Пост: {lead_info.get('post_url', 'N/A')}
 👤 Пользователь: @{lead_info.get('username', 'unknown')}
@@ -152,44 +147,28 @@ class LeadMonitor:
 2. Запросить: страну, количество участников, формат
 3. Отправить коммерческое предложение
 
-📧 Email для связи: {NOTIFICATION_EMAIL}
+📧 Email для связи: project@logistoria.com
 """
-        
-        # Отправляем в Telegram (через OpenClaw)
+        # Отправляем через OpenClaw message tool
         self._notify_telegram(message)
-        
-        # Отправляем на email (если настроен SMTP)
-        if SMTP_SERVER:
-            self._notify_email(lead_info, message)
     
     def _notify_telegram(self, message):
         """Отправить уведомление в Telegram через OpenClaw"""
-        # Это будет работать через OpenClaw message tool
-        # Пока сохраняем в лог
-        print(f"📨 Telegram notification:\n{message}")
-        
-        # В реальности здесь будет:
-        # message(action="send", target=TELEGRAM_USER_ID, message=message)
-    
-    def _notify_email(self, lead_info, message):
-        """Отправить уведомление на email"""
+        # Используем системное уведомление через OpenClaw
+        import subprocess
         try:
-            msg = MIMEMultipart()
-            msg['From'] = SMTP_USER
-            msg['To'] = NOTIFICATION_EMAIL
-            msg['Subject'] = f"🎯 Instagram Lead: @{lead_info.get('username', 'unknown')}"
-            
-            msg.attach(MIMEText(message, 'plain', 'utf-8'))
-            
-            server = smtplib.SMTP(SMTP_SERVER, SMTP_PORT)
-            server.starttls()
-            server.login(SMTP_USER, SMTP_PASS)
-            server.send_message(msg)
-            server.quit()
-            
-            print(f"✅ Email sent to {NOTIFICATION_EMAIL}")
+            # Сохраняем заявку в файл для обработки OpenClaw
+            notification_file = Path(__file__).parent / '.pending_notifications.jsonl'
+            with open(notification_file, 'a') as f:
+                import json
+                f.write(json.dumps({
+                    'timestamp': datetime.now().isoformat(),
+                    'message': message,
+                    'lead_info': getattr(self, '_last_lead', {})
+                }) + '\n')
+            print(f"📨 Telegram notification queued")
         except Exception as e:
-            print(f"❌ Email error: {e}")
+            print(f"❌ Notification error: {e}")
     
     def process_leads(self):
         """Основной процесс: проверить новые комментарии и найти заявки"""
